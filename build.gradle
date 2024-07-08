@@ -1,0 +1,65 @@
+plugins {
+    alias(libs.plugins.jetbrainsKotlinJvm)
+    id("java-gradle-plugin")
+    id("maven-publish")
+//    id("version-catalog")
+    id("signing")
+    id("com.gradle.plugin-publish") version "1.2.1"
+}
+
+group = "io.github.tclicetang.gradle"
+version = "0.0.1"
+
+kotlin {
+    jvmToolchain(8)
+}
+
+java {
+//    withJavadocJar()
+    withSourcesJar()
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    implementation(libs.google.gson)
+    implementation(libs.okhttp4)
+    implementation(libs.okhttp4.logging)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            // 使用file()或者uri()指定本地仓库的位置
+            url = uri("${rootDir.path}/repo")
+        }
+    }
+}
+
+//testing {
+//    suites {
+//        def test by getting(JvmTestSuite::class) {
+//            useKotlinTest(libs.versions.kotlin.get())
+//        }
+//    }
+//}
+
+gradlePlugin {
+    website = "https://github.com/tcl-icetang/center-publisher.git"
+    vcsUrl = "https://github.com/tcl-icetang/center-publisher.git"
+
+    plugins {
+        buildcostplugin {
+            id = "io.github.tclicetang.gradle.central-publisher"
+            version = project.version
+            implementationClass = "io.github.tclicetang.publisher.CentralPublisherPluginKt"
+            displayName = "Maven Central Publisher"
+            description = "Gradle plugin for building and uploading bundles to the Sonatype Maven Central Repository."
+            tags = Arrays.asList("maven", "maven-central", "publish", "sonatype")
+        }
+    }
+}
